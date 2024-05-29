@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const cors = require('cors')
 
@@ -30,11 +30,51 @@ async function run() {
     try {
 
         const menuCollection = client.db('BistroDB').collection('menu');
+        const cartCollection = client.db('BistroDB').collection('carts');
 
         app.get('/menu', async (req, res) => {
             const result = await menuCollection.find().toArray();
             res.send(result)
         })
+
+        // carts collection
+
+
+
+        app.post('/carts', async (req, res) => {
+            const cartItems = req.body;
+            const result = await cartCollection.insertOne(cartItems);
+            res.send(result)
+        })
+
+        app.get('/carts', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const result = await cartCollection.find(query).toArray();
+            res.send(result)
+        })
+
+        app.delete('/carts/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
